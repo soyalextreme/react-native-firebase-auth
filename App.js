@@ -1,21 +1,47 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Button, StyleSheet, Text, View } from 'react-native';
+import Auth from './components/Auth';
+import firebase from './db/firebase';
+import 'firebase/auth';
 
 export default function App() {
+  const [user, setUser] = useState(undefined);
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged(response => {
+      //console.log("Usuario logeado:", response)
+      setUser(response);
+    });
+  }, []);
+
+  if (user === undefined) return null;
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    <View style={styles.background}>
       <StatusBar style="auto" />
+      {user ? <Logout/> : <Auth />}
+    </View>
+  );
+}
+
+
+function Logout() {
+  const logoutNow = () => {
+    firebase.auth().signOut();
+  }
+
+  return (
+    <View>
+      <Text>Estas loggeado</Text>
+      <Button title="cerrar sesion" onPress={logoutNow}/>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  background: {
+    backgroundColor: '#15212b',
+    height: '100%',
   },
 });
